@@ -36,7 +36,7 @@ import javax.swing.SwingUtilities;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
-public class MainFrame extends javax.swing.JFrame implements KaydetmeListener {
+public class MainFrame extends javax.swing.JFrame implements SavingListener {
 	private JSplitPane jSplitPane1;
 	private JPanel jPanel1;
 	private JList jList1;
@@ -45,19 +45,36 @@ public class MainFrame extends javax.swing.JFrame implements KaydetmeListener {
 	private JButton btnYeni;
 	private JPanel jPanel2;
 	
-	private ArrayList<Ogrenci> ogrenciler = new ArrayList<Ogrenci>();
+	private ArrayList<Person> ogrenciler = new ArrayList<Person>();
 
 	/**
 	* Auto-generated main method to display this JFrame
 	*/
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				MainFrame inst = new MainFrame();
-				inst.setLocationRelativeTo(null);
-				inst.setVisible(true);
+		
+		final AdminPanel panel = new AdminPanel();
+		panel.setVisible(true);
+		panel.btnLogin.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (panel.userName.getText().equals("admin") && panel.userPassword.getText().equals("1234")) {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							MainFrame inst = new MainFrame();
+							inst.setLocationRelativeTo(null);
+							inst.setVisible(true);
+						}
+					});
+				panel.dispose();
+				}
+				else
+					JOptionPane.showMessageDialog(null, "Yanlis sifre veya kullanici adi girdiniz");
 			}
 		});
+		
+	
+		
+		
 	}
 	
 	public MainFrame() {
@@ -135,21 +152,21 @@ public class MainFrame extends javax.swing.JFrame implements KaydetmeListener {
 	}
 	
 	private void btnYeniMousePressed(MouseEvent evt) {
-		KayitFrame frm = new KayitFrame();
+		SaveFrame frm = new SaveFrame();
 		frm.setKaydetmeListener(this);
 		frm.setVisible(true);
 	}
 
 	@Override
-	public void kaydedildi(KaydetmeEventObject obj) {
-		Ogrenci o = new Ogrenci(obj.getIsim(),obj.getSoyad(),obj.getNo());
+	public void saved(SavingEventObject obj) {
+		Person o = new Person(obj.getName(),obj.getSurname(),obj.getNo());
 		ogrenciler.add(o);
 		((DefaultComboBoxModel)jList1.getModel()).addElement(o);
 	}
 	//Listeye eklenen ogrenciler dosyaya yazdirildi
 	private void btnYazdirMousePressed(MouseEvent evt) {
 		try {
-			File dosya = new File("/Users/mac/Desktop/ogrenciler.dat");
+			File dosya = new File("/Users/erkoc/Desktop/ogrenciler.dat");
 			
 			ObjectOutputStream yazici = new ObjectOutputStream(new FileOutputStream(dosya));
 			yazici.writeObject(ogrenciler);
@@ -165,10 +182,10 @@ public class MainFrame extends javax.swing.JFrame implements KaydetmeListener {
 	
 	private void btnOkuMousePressed(MouseEvent evt) {
 		try {
-			File dosya = new File("/Users/mac/Desktop/ogrenciler.dat");
+			File dosya = new File("/Users/erkoc/Desktop/ogrenciler.dat");
 			
 			ObjectInputStream okuyucu = new ObjectInputStream(new FileInputStream(dosya));
-			this.ogrenciler=(ArrayList<Ogrenci>)okuyucu.readObject();
+			this.ogrenciler=(ArrayList<Person>)okuyucu.readObject();
 			okuyucu.close();
 			
 			ListModel jList1Model = 
